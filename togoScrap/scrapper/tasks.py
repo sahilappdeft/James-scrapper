@@ -6,7 +6,7 @@ import xlsxwriter
 import pytz
 from datetime import datetime
 from django.utils.timezone import make_aware
-from utilis.cruiseline_scrapper import main
+from .utilis.cruiseline_scrapper import main
 
 @shared_task
 def send_email_with_excel(filename, script):
