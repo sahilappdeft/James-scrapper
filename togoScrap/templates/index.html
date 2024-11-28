@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraping Interface</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.js"></script>
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --primary-light: #eef2ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.5;
+        background: linear-gradient(135deg, #f0f4ff 0%, #e5e9ff 100%);
+        min-height: 100vh;
+        color: var(--gray-800);
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 1rem;
+    }
+    
+    header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        color: var(--gray-800);
+    }
+    
+    header h1 svg {
+        color: var(--primary);
+    }
+    
+    header p {
+        color: var(--gray-600);
+        font-size: 1.125rem;
+    }
+    
+    .card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    
+    .sections-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .selection-section {
+        padding: 1.5rem;
+        background: var(--gray-50);
+        border-radius: 1rem;
+        border: 1px solid var(--gray-200);
+    }
+    
+    .selection-section h2 {
+        font-size: 1.25rem;
+        color: var(--gray-800);
+        margin-bottom: 1.5rem;
+    }
+    
+    .dropdown-container {
+        position: relative;
+    }
+    
+    .cruise-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 0.75rem;
+        background-color: white;
+        color: var(--gray-800);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.25rem;
+    }
+    
+    .cruise-select:hover {
+        border-color: var(--primary);
+    }
+    
+    .cruise-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    .script-cards {
+        display: grid;
+        gap: 1rem;
+    }
+    
+    .script-card {
+        border: 2px solid var(--gray-200);
+        border-radius: 1rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .script-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+    
+    .script-card.selected {
+        border-color: var(--primary);
+        background-color: var(--primary-light);
+    }
+    
+    .card-content {
+        padding: 1.25rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .card-icon {
+        color: var(--primary);
+        background-color: var(--primary-light);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .card-text h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 0.25rem;
+    }
+    
+    .card-text p {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+    
+    .radio {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+    
+    .script-card.selected .radio {
+        border-color: var(--primary);
+        background-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-light);
+    }
+    
+    .format-section {
+        margin-bottom: 2rem;
+    }
+    
+    .format-section h2 {
+        font-size: 1.25rem;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+    
+    .format-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .format-button {
+        flex: 1;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        color: var(--gray-700);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .format-button:hover {
+        border-color: var(--primary);
+        background-color: var(--gray-50);
+    }
+    
+    .format-button.selected {
+        border-color: var(--primary);
+        background-color: var(--primary-light);
+        color: var(--primary);
+    }
+    
+    .format-button svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .start-button {
+        width: 100%;
+        padding: 1rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .start-button:hover:not(:disabled) {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+    
+    .start-button:disabled {
+        background-color: var(--gray-200);
+        color: var(--gray-400);
+        cursor: not-allowed;
+    }
+    
+    .notice {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        margin-top: 1rem;
+    }
+    
+    .notice svg {
+        color: var(--gray-600);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .sections-container {
+            grid-template-columns: 1fr;
+        }
+    
+        .container {
+            padding: 1.5rem 1rem;
+        }
+    
+        header h1 {
+            font-size: 2rem;
+        }
+    
+        .card {
+            padding: 1.5rem;
+        }
+    
+        .format-buttons {
+            flex-direction: column;
+        }
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .script-card:active {
+        transform: scale(0.98);
+    }
+</style>
+
+</head>
+<body>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="container">
+        <header>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 21c.6.5 1.2 1 2.4 1 2.4 0 2.4-2 4.8-2 2.4 0 2.4 2 4.8 2 2.4 0 2.4-2 4.8-2 1.2 0 1.8.5 2.4 1"/>
+                    <path d="M2 17c.6.5 1.2 1 2.4 1 2.4 0 2.4-2 4.8-2 2.4 0 2.4 2 4.8 2 2.4 0 2.4-2 4.8-2 1.2 0 1.8.5 2.4 1"/>
+                    <path d="M2 13c.6.5 1.2 1 2.4 1 2.4 0 2.4-2 4.8-2 2.4 0 2.4 2 4.8 2 2.4 0 2.4-2 4.8-2 1.2 0 1.8.5 2.4 1"/>
+                    <path d="M3 13v8"/>
+                </svg>
+                Cruise Line Scraper
+            </h1>
+            <p>Select your scraping options and start collecting data</p>
+        </header>
+        <form  method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <main class="card">
+                <div class="sections-container">
+                    <!-- Cruise Line Selection Section -->
+                    <label id="cruiseLine" style="text-align: center; margin-top: 20px;">
+                    {% comment %} <div id="cruiseLine" style="text-align: center; margin-top: 20px;"> {% endcomment %}
+                        <label for="fileUpload" style="display: block; font-size: 1.2rem; margin-bottom: 10px;">Upload Cruise Line Data:</label>
+                        <button id="uploadButton" type="button" style="display: inline-block; padding: 10px 20px; font-size: 1.1rem; border: none; border-radius: 11px; background-color: #4f46e5; color: white; cursor: pointer;">
+                        Choose File
+                        <input type="file" id="fileUpload" name="fileUpload" accept=".xlsx" style="display: none;" />
+                        </button>
+                        <span id="fileName" style="display: block; margin-top: 10px; font-size: 0.9rem; color: gray;"></span>
+                    {% comment %} </div> {% endcomment %}
+                    </label>
+
+                    <!-- Script Selection Section -->
+                    <section class="selection-section">
+                        <h2>Select Scraping Script</h2>
+                        <div class="script-cards">
+                            <label class="script-card">
+                                <input type="radio" name="script" value="Cruise Line Scraper" hidden>
+
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                                        </svg>
+                                    </div>
+                                    <div class="card-text">
+                                        <h3>Cruise Line Scraper</h3>
+                                        {% comment %} <p>Extract cruise lines</p> {% endcomment %}
+                                    </div>
+                                    <div class="radio"></div>
+                                </div>
+                            </label>
+
+                            <label class="script-card">
+                                <input type="radio" name="script" value="Interline Cruise Line Scraper" hidden>
+
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                        </svg>
+                                    </div>
+                                    <div class="card-text">
+                                        <h3>Interline Cruise line Scraper</h3>
+                                        {% comment %} <p>Collect </p> {% endcomment %}
+                                    </div>
+                                    <div class="radio"></div>
+                                </div>
+                            </label>
+
+                            <label class="script-card">
+                                <input type="radio" name="script" value="Custom Search Cruise Line Scraper" hidden>
+
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/>
+                                            <path d="M12 8c1-.56 2.78-2 5-2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="card-text">
+                                        <h3>Custom Search Cruise Line Scraper</h3>
+                                        {% comment %} <p>Gather customer reviews and ratings</p> {% endcomment %}
+                                    </div>
+                                    <div class="radio"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+
+                <button id="submitButton" class="start-button " type="button" onclick="submitForm(event)" disabled>
+                    <svg id="spinner" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                        <path d="M12 3v9"/>
+                    </svg>
+                    <i class="fa fa-circle-o-notch fa-spin" id="loadingIcon" style="display:none;"></i>
+
+                    <span id="buttonText">Start Scraping</span>
+                </button>
+                <!-- Response Message Container -->
+                <div id="responseMessage" style="display: none; padding: 10px; margin-top: 10px; border-radius: 5px;">
+                    <span id="responseText"></span>
+                </div>
+
+                <div class="notice">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Please select both a cruise line and scraping script to continue
+                </div>
+            </main>
+        </form>
+
+    </div>
+
+    <script>
+        // Handle script card selection
+        document.querySelectorAll('.script-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.script-card').forEach(c => 
+                    c.classList.remove('selected'));
+                card.classList.add('selected');
+                updateStartButton();
+            });
+        });
+
+        // Handle format button selection
+        document.querySelectorAll('.format-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.format-button').forEach(b => 
+                    b.classList.remove('selected'));
+                button.classList.add('selected');
+            });
+        });
+
+        // Handle cruise line selection
+        document.getElementById('cruiseLine').addEventListener('change', updateStartButton);
+
+        function updateStartButton() {
+            const cruiseLineSelected = document.getElementById('fileUpload').value !== '';
+            const scriptSelected = document.querySelector('.script-card.selected') !== null;
+            const startButton = document.querySelector('.start-button');
+            const notice = document.querySelector('.notice');
+
+            startButton.disabled = !(cruiseLineSelected && scriptSelected);
+            notice.style.display = (cruiseLineSelected && scriptSelected) ? 'none' : 'flex';
+        }
+        //file uploader 
+        const uploadButton = document.getElementById('uploadButton');
+        const fileInput = document.getElementById('fileUpload');
+        const fileNameSpan = document.getElementById('fileName');
+  
+        // Trigger file input when clicking the button
+        uploadButton.addEventListener('click', () => {
+        fileInput.click();
+        });
+
+        // Display the selected file name
+        fileInput.addEventListener('change', () => {
+        const fileName = fileInput.files.length ? fileInput.files[0].name : "No file chosen";
+        fileNameSpan.textContent = fileName;
+        });
+
+        //submit form
+        function submitForm(event) {
+            event.preventDefault(); // Prevent form from submitting immediately
+            
+            // Get the submit button and its elements
+            const submitButton = document.getElementById('submitButton');
+            const spinner = document.getElementById('spinner');
+            const buttonText = document.getElementById('buttonText');
+
+            // Show the spinner and disable the button
+            spinner.style.display = 'none'; // Show the spinner
+            buttonText.textContent  = 'Scraping';      // Hide the button text
+            submitButton.disabled = true;           // Disable the button
+
+            const loadingIcon = document.getElementById('loadingIcon');
+
+            // Hide the loading icon initially
+            loadingIcon.style.display = 'block';
+
+            // Create FormData to send data with the file
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileUpload').files[0];
+            const selectedScript = document.querySelector('.script-card.selected input').value;
+            
+            // Append the data to FormData
+            formData.append('fileUpload', fileInput);
+            formData.append('script', selectedScript);
+
+            // Log the data (optional)
+            console.log('Form data:', formData);    
+
+            // Example API request (use your actual API URL here)
+            fetch('http://127.0.0.1:8008/', {
+                method: 'POST',
+                body: formData,  // No need to set Content-Type header
+            })
+            .then(response => {
+                // Check if the response is an Excel file (based on content type)
+                if (response.ok && response.headers.get('Content-Type').includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+                    return response.blob(); // Return as blob for file download
+                } else {
+                    return response.json(); // Return as JSON for success/error messages
+                }
+            })
+            .then(data => {
+                if (data instanceof Blob) {
+                    // Handle the Excel file download
+                    const url = window.URL.createObjectURL(data);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'cruise_deals.xlsx';  // Suggested filename
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Show success message using Toastify
+                    Toastify({
+                        text: 'Download started',
+                        duration: 3000,  // Show for 3 seconds
+                        backgroundColor: "#28a745", // Green for success
+                        close: true
+                    }).showToast();
+                } else {
+                    // Handle JSON response (success or error)
+                    console.log('Success:', data);
+                    Toastify({
+                        text: `Success: ${data.message}`,
+                        duration: 3000,  // Show for 3 seconds
+                        backgroundColor: "#28a745", // Green for success
+                        close: true
+                    }).showToast();
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Show error message using Toastify
+                Toastify({
+                    text: `Error: ${error.message || 'Something went wrong'}`,
+                    duration: 3000,  // Show for 3 seconds
+                    backgroundColor: "#dc3545", // Red for error
+                    close: true
+                }).showToast();
+            })
+            .finally(() => {
+                // Hide the spinner and enable the button again
+                spinner.style.display = 'inline-block'; // Hide the spinner
+                buttonText.textContent = 'Start Scraping'; // Show the button text
+                submitButton.disabled = false;  // Enable the button
+
+                loadingIcon.style.display = 'none';
+
+            });
+        }
+
+    </script>
+</body>
+</html>
