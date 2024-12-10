@@ -40,10 +40,10 @@ def get_combined_continent(location1, location2, get_continent_func):
     # Extract the last part of the location (after the last comma)
     country1 = location1.split(",")[-1].strip()
     country2 = location2.split(",")[-1].strip()
-
-    # Determine continents
-    continent1 = get_continent_func(country1)
-    continent2 = get_continent_func(country2)
+    print("ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",country1,country2)
+    # Determine continents 
+    continent1 = get_continent_func.get(country1,'')
+    continent2 = get_continent_func.get(country2,'')
 
     # Compare continents and return the result
     if continent1 == continent2:
@@ -137,6 +137,18 @@ def check_cruise_line(driver, cruise_line):
         print(f"Cruise line not found: {cruise_line}")
         not_found_cruise_lines.append(cruise_line)
 
+import pandas as pd
+
+# Function to read the Excel file and return a mapping of continent to region
+def load_continent_region_mapping(file_path):
+    # Read the Excel file using pandas
+    df = pd.read_excel(file_path)
+    print(df,">>>>>>>>>>>>>>>>>>>>>>>>")
+    # Assuming the Excel file has two columns: "Continent" and "Region"
+    # Create a dictionary mapping each continent to its corresponding region
+    continent_region_mapping = dict(zip(df['Country'], df['Region']))
+    print(":::::::::::::::",continent_region_mapping)
+    return continent_region_mapping
 
 def convert_date(date_str):
     """Converts date string to the format 'MM/DD/YYYY'."""
@@ -164,16 +176,20 @@ def convert_date(date_str):
 def extract_data_from_results(driver):
     """Extracts cruise deal data from the results table."""
     results_container = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.XPATH, "//div[@id='bodyContainer']/div[3]"))
+        EC.presence_of_element_located((By.XPATH, "//div[@id='bodyContainer']"))
     )
+    print(">>>>>>>>>>>>ii")
     html_content = results_container.get_attribute('outerHTML')
     soup = BeautifulSoup(html_content, 'html.parser')
     rows = soup.select('table.ticker.deals tr')
     data = []
-    
+    file_path = r"C:\Users\VIS\Downloads\togoScrap (1)\togoScrap\scrapper\Regions.xlsx"  # Path to your Excel file
+    print(">>>>>>>>>>>>>>>>>>>>>",file_path)
+    continent_region_mapping = load_continent_region_mapping(file_path)
+    print(">>>",continent_region_mapping)
     for row in rows:
         cols = row.find_all('td')
-        print("IIII")
+        print(cols[3].text.strip(), cols[4].text.strip(), "-----------------------")
         if cols:
             deal = [
                 cols[0].text.strip(),
@@ -186,10 +202,12 @@ def extract_data_from_results(driver):
                 cols[7].text.strip(),
                 cols[8].text.strip(),
                 cols[9].text.strip(),
+                
+                get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), continent_region_mapping)
                 # get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), get_continent)
-                f"{country_dic.get(cols[3].text.strip(), "Asia")},{country_dic.get(cols[4].text.strip(), "Asia")}"
+                # f"{country_dic.get(cols[3].text.strip(), "Asia")},{country_dic.get(cols[4].text.strip(), "Asia")}"
             ]
-            data.append(deal)
+            print(get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), continent_region_mapping))
     print(f"Extracted {len(data)} rows of data.")
     return data
 
@@ -211,7 +229,7 @@ def generate_excel_file(data, not_found_cruise_lines, file_name="cruise_deals.xl
     # Write to an Excel file in memory with two sheets
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df_data.to_excel(writer, index=False, sheet_name="Cruise Deals")
+        df_data.to_excel(writer, index=False, sheet_name="file_name")
         df_not_found.to_excel(writer, index=False, sheet_name="Not Found Cruise Lines")
     
     # Set the pointer to the beginning of the BytesIO object
@@ -224,7 +242,6 @@ def get_cruise_lines_from_excel(file):
     """Reads cruise lines from an Excel file."""
     df = pd.read_excel(file)
     return df['Cruise Line'].tolist()
-
 
 # Main Processing Function
 def process_script(driver, cruise_lines, script_type):
@@ -282,7 +299,10 @@ def main(file, script_type="script1", filename="cruiseline"):
 
     # Configure Chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Uncomment to run in headless mode (no GUI)
+    chrome_options.add_argument("--headless")  # Run without GUI
+    chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
+    chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
+    chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
 
     # Initialize WebDriver
     driver = webdriver.Chrome(options=chrome_options)

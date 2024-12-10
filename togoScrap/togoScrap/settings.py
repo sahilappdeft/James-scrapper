@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'corsheaders',
+    'scrapper'
 
 ]
 
@@ -125,7 +126,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -144,3 +146,7 @@ DEFAULT_FROM_EMAIL = 'ankitdhimanvis@gmail.com'
 # Celery settings
 CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_RESULT_BACKEND = "redis://localhost:6379"
+
+LOGIN_URL = '/login/'  # URL to redirect unauthenticated users
+LOGIN_REDIRECT_URL = '/'  # URL to redirect after a successful login
+LOGOUT_REDIRECT_URL = '/login/'  # URL to redirect after logout
