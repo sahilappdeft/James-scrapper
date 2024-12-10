@@ -1,9 +1,0 @@
-/venv
-/togoScrap/media
-**/migrations/*
-!**/migrations/__init__.py
-**/__pycache__/
-
-# database
-db.*
-db.sqlite3/
