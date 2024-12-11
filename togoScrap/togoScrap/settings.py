@@ -29,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['ivodev.vinnisoft.org', '*']
 
-
+CSRF_TRUSTED_ORIGINS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
