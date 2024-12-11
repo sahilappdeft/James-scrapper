@@ -29,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['ivodev.vinnisoft.org', '*']
 
-CSRF_TRUSTED_ORIGINS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://app.mycruisescanner.com/']
 # Application definition
 
 INSTALLED_APPS = [
