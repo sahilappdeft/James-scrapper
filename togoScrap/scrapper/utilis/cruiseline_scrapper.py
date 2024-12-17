@@ -187,7 +187,7 @@ def extract_data_from_results(driver):
         region_file = "scrapper\cruise_line_files\Regions.xlsx"  # Path to your default Excel file
     else:
         # If a RegionMapping object exists, use the file from the object
-        region_file = "scrapper\cruise_line_files\Regions.xlsx"
+        region_file = region_file.file.path
     continent_region_mapping = load_continent_region_mapping(region_file)
     for row in rows:
         cols = row.find_all('td')
