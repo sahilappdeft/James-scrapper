@@ -17,20 +17,20 @@ def send_email_with_excel(filename, script):
         if file:
             file_path = file.file.url
         else:
-            file_path = "scrapper\cruise_line_files\cruise_lines.xlsx"
+            file_path = "scrapper/cruise_line_files/cruise_lines.xlsx"
       
     elif filename == 'interline':
         file = CruiseLineFile.objects.filter(type='interline').first()
         if file:
             file_path = file.file.url
         else:
-            file_path = "scrapper\cruise_line_files\interline.xlsx"
+            file_path = "scrapper/cruise_line_files/interline.xlsx"
     elif filename == 'custom search':
         file = CruiseLineFile.objects.filter(type='custom_search').first()
         if file:
             file_path = file.file.url
         else:
-            file_path = "scrapper\cruise_line_files\custom_search.xlsx"
+            file_path = "scrapper/cruise_line_files/custom_search.xlsx"
     else:
         file_path = None
     if file_path:
