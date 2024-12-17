@@ -12,15 +12,8 @@ class RegionMappingAdmin(admin.ModelAdmin):
         # Add a "Download Sample File" link next to the 'file' field
         if 'file' in form.base_fields:
             # Adjust the file path to use a valid static URL
-            file = RegionMapping.objects.first()
-            
-            if file:
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                sample_file_url = file.file.url
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",sample_file_url)
-            else:
-                print(">>>>>>>>>>>>>>>")
-                sample_file_url = static('scrapper/cruise_lines.xlsx')
+            sample_file_url = static('scrapper/Regions.xlsx')
+            print(sample_file_url,"sample_file_urlsample_file_urlsample_file_url")
               # Adjust path based on your static file location
             form.base_fields['file'].help_text = mark_safe(
                 f'<a href="{sample_file_url}" download style="color: blue; text-decoration: underline;">Download Sample File</a>'

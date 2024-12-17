@@ -126,6 +126,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Path to your assets folder
+]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
@@ -138,10 +142,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_PORT=587
-EMAIL_HOST_USER='ankitdhimanvis@gmail.com'
-EMAIL_HOST_PASSWORD='usncukzfoflhpbaf'
+EMAIL_HOST_USER=''
+EMAIL_HOST_PASSWORD=''
 EMAIL_USE_TLS =True
-DEFAULT_FROM_EMAIL = 'ankitdhimanvis@gmail.com'
+DEFAULT_FROM_EMAIL = ''
 
 # Celery settings
 CELERY_BROKER_URL = "redis://localhost:6379"

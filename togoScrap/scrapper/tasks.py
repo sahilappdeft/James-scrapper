@@ -17,20 +17,20 @@ def send_email_with_excel(filename, script):
         if file:
             file_path = file.file.url
         else:
-            file_path = "scrapper\cruise_lines.xlsx"
+            file_path = "scrapper\cruise_line_files\cruise_lines.xlsx"
       
     elif filename == 'interline':
         file = CruiseLineFile.objects.filter(type='interline').first()
         if file:
             file_path = file.file.url
         else:
-            file_path = "scrapper\interline.xlsx"
+            file_path = "scrapper\cruise_line_files\interline.xlsx"
     elif filename == 'custom search':
         file = CruiseLineFile.objects.filter(type='custom_search').first()
         if file:
             file_path = file.file.url
         else:
-            file_path = "scrapper\custom_search.xlsx"
+            file_path = "scrapper\cruise_line_files\custom_search.xlsx"
     else:
         file_path = None
     if file_path:
@@ -41,7 +41,7 @@ def send_email_with_excel(filename, script):
         subject = "Weekly Cruise line report"
         message = f"Here is your {filename} report."
         from_email = "ankitdhimanvis@gmail.com"
-        to_email = ["sahil9023927813@gmail.com"]  # Add recipient's email
+        to_email = ["fab@kvi.travel", "james@kvi.travel"]  # Add recipient's email
 
         email = EmailMessage(subject, message, from_email, to_email)
         email.attach(f"{filename}.xlsx", excel_file_content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

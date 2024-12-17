@@ -18,11 +18,10 @@ class CruiseLineFile(models.Model):
     file = models.FileField(upload_to='cruise_line', 
                             validators=[validate_file_extension_cruise_line],
                             null=False, blank=False)
-    type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES, null=False, blank=False)
+    type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES, null=False, blank=False, unique=True)
     
     def __str__(self):
         return self.type
-    
     class Meta:
         unique_together = ['file', 'type']
 
@@ -35,7 +34,7 @@ class CruiseLineFile(models.Model):
 class RegionMapping(models.Model):
     
     name = models.CharField(max_length=50, choices=[('region_file', 'Region File')],
-                            null=False, blank=False, default='region_file')
+                            null=False, blank=False, default='region_file', unique=True)
     file = models.FileField(
         upload_to='region',
         validators=[validate_file_extension_cruise_line],

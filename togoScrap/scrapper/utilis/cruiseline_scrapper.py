@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from scrapper.models import RegionMapping
 
 from .region import get_continent
 
@@ -40,7 +41,6 @@ def get_combined_continent(location1, location2, get_continent_func):
     # Extract the last part of the location (after the last comma)
     country1 = location1.split(",")[-1].strip()
     country2 = location2.split(",")[-1].strip()
-    print("ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",country1,country2)
     # Determine continents 
     continent1 = get_continent_func.get(country1,'')
     continent2 = get_continent_func.get(country2,'')
@@ -143,11 +143,9 @@ import pandas as pd
 def load_continent_region_mapping(file_path):
     # Read the Excel file using pandas
     df = pd.read_excel(file_path)
-    print(df,">>>>>>>>>>>>>>>>>>>>>>>>")
     # Assuming the Excel file has two columns: "Continent" and "Region"
     # Create a dictionary mapping each continent to its corresponding region
     continent_region_mapping = dict(zip(df['Country'], df['Region']))
-    print(":::::::::::::::",continent_region_mapping)
     return continent_region_mapping
 
 def convert_date(date_str):
@@ -178,18 +176,21 @@ def extract_data_from_results(driver):
     results_container = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, "//div[@id='bodyContainer']"))
     )
-    print(">>>>>>>>>>>>ii")
     html_content = results_container.get_attribute('outerHTML')
     soup = BeautifulSoup(html_content, 'html.parser')
     rows = soup.select('table.ticker.deals tr')
     data = []
-    file_path = r"C:\Users\VIS\Downloads\togoScrap (1)\togoScrap\scrapper\Regions.xlsx"  # Path to your Excel file
-    print(">>>>>>>>>>>>>>>>>>>>>",file_path)
-    continent_region_mapping = load_continent_region_mapping(file_path)
-    print(">>>",continent_region_mapping)
+
+    region_file = RegionMapping.objects.all().first()
+    # If no RegionMapping object exists, use the default file path
+    if not region_file:
+        region_file = "scrapper\\cruise_line_files\\Regions.xlsx"  # Path to your default Excel file
+    else:
+        # If a RegionMapping object exists, use the file from the object
+        region_file = region_file.file.path
+    continent_region_mapping = load_continent_region_mapping(region_file)
     for row in rows:
         cols = row.find_all('td')
-        print(cols[3].text.strip(), cols[4].text.strip(), "-----------------------")
         if cols:
             deal = [
                 cols[0].text.strip(),
@@ -207,7 +208,8 @@ def extract_data_from_results(driver):
                 # get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), get_continent)
                 # f"{country_dic.get(cols[3].text.strip(), "Asia")},{country_dic.get(cols[4].text.strip(), "Asia")}"
             ]
-            print(get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), continent_region_mapping))
+            data.append(deal)
+
     print(f"Extracted {len(data)} rows of data.")
     return data
 
@@ -299,10 +301,10 @@ def main(file, script_type="script1", filename="cruiseline"):
 
     # Configure Chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run without GUI
-    chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
-    chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
-    chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
+    # chrome_options.add_argument("--headless")  # Run without GUI
+    # chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
+    # chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
+    # chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
 
     # Initialize WebDriver
     driver = webdriver.Chrome(options=chrome_options)
