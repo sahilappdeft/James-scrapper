@@ -40,7 +40,7 @@ def send_email_with_excel(filename, script):
         # Send email with Excel file attachment
         subject = "Weekly Cruise line report"
         message = f"Here is your {filename} report."
-        from_email = "ankitdhimanvis@gmail.com"
+        from_email = "fab@kvi.travel"
         to_email = ["fab@kvi.travel", "james@kvi.travel"]  # Add recipient's email
 
         email = EmailMessage(subject, message, from_email, to_email)

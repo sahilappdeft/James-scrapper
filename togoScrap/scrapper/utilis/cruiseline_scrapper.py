@@ -193,18 +193,20 @@ def extract_data_from_results(driver):
         cols = row.find_all('td')
         if cols:
             deal = [
-                cols[0].text.strip(),
-                cols[1].text.strip(),
-                convert_date(cols[2].text.strip()),  # Apply the date conversion function
-                cols[3].text.strip(),
-                cols[4].text.strip(),
-                cols[5].text.strip().replace("\n", " / "),
-                cols[6].text.strip(),
-                cols[7].text.strip(),
-                cols[8].text.strip(),
-                cols[9].text.strip(),
-                
-                get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), continent_region_mapping)
+                cols[1].text.strip(),  # Length
+                convert_date(cols[2].text.strip()),  # Month
+                cols[3].text.strip(),  # Port From
+                cols[4].text.strip(),  # Port To
+                get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), continent_region_mapping),  # Region
+                "",  # Country (Placeholder)
+                cols[5].text.strip().replace("\n", " / "),  # Cruise Line
+                "",  # Ship (Placeholder)
+                cols[6].text.strip(),  # Stars
+                cols[7].text.strip(),  # Was
+                cols[8].text.strip(),  # Price
+                cols[9].text.strip(),  # Save
+                cols[0].text.strip(),  # Ref
+                ""  # Notes (Placeholder)
                 # get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), get_continent)
                 # f"{country_dic.get(cols[3].text.strip(), "Asia")},{country_dic.get(cols[4].text.strip(), "Asia")}"
             ]
@@ -220,8 +222,9 @@ def generate_excel_file(data, not_found_cruise_lines, file_name="cruise_deals.xl
     """
     # Create a Pandas DataFrame for the main data
     columns = [
-        "Ref", "Length", "Month", "Port From", "Port To",
-        "Line", "Stars", "Was", "Price", "Save", "Region"
+        "Length", "Month", "Port From", "Port To", "Region",
+        "Country", "Cruise Line", "Ship", "Stars", "Was",
+        "Price", "Save", "Ref", "Notes"
     ]
     df_data = pd.DataFrame(data, columns=columns)
 
