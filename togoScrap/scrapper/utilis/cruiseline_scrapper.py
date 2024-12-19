@@ -206,9 +206,9 @@ def extract_data_from_results(driver):
                 country_mapping.get(cols[4].text.strip().lower(), ''),  #Country (Placeholder)
                 cruise_line,  # Cruise Line
                 cruise_line.split(" / ")[-1].strip(),  # Ship (Placeholder)
-                cols[6].text.strip() if cols[6].text.strip() == "-" else '',  # Stars
-                cols[7].text.strip() if cols[7].text.strip() == "-" else '',  # Was
-                cols[8].text.strip() if cols[8].text.strip() == "-" else '',  # Price
+                cols[6].text.strip() if cols[6].text.strip() != "-" else '',  # Stars
+                cols[7].text.strip() if cols[7].text.strip() != "-" else '',  # Was
+                cols[8].text.strip() if cols[8].text.strip() != "-" else '',  # Price
                 cols[9].text.strip(),  # Save
                 cols[0].text.strip(),  # Ref
                 ""  # Notes (Placeholder)
