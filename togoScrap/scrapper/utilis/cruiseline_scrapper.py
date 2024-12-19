@@ -39,17 +39,17 @@ def get_combined_continent(location1, location2, get_continent_func):
         str: Continent name or comma-separated continent names.
     """
     # Extract the last part of the location (after the last comma)
-    country1 = location1.split(",")[-1].strip()
-    country2 = location2.split(",")[-1].strip()
+    # country1 = location1.split(",")[-1].strip()
+    # country2 = location2.split(",")[-1].strip()
     # Determine continents 
-    continent1 = get_continent_func.get(country1,'')
-    continent2 = get_continent_func.get(country2,'')
+    continent1 = get_continent_func.get(location1,'')
+    continent2 = get_continent_func.get(location2,'')
 
     # Compare continents and return the result
     if continent1 == continent2:
         return continent1
     else:
-        return f"{continent1}, {continent2}"
+        return f"{continent1}, {continent2}"   
 
 
 # Helper Functions
@@ -143,10 +143,13 @@ import pandas as pd
 def load_continent_region_mapping(file_path):
     # Read the Excel file using pandas
     df = pd.read_excel(file_path)
-    # Assuming the Excel file has two columns: "Continent" and "Region"
+    # Ensure the 'port' column values are lowercase
+    df['port'] = df['port'].str.lower()
+   
     # Create a dictionary mapping each continent to its corresponding region
-    continent_region_mapping = dict(zip(df['Country'], df['Region']))
-    return continent_region_mapping
+    continent_region_mapping = dict(zip(df['port'], df['Region']))
+    country_mapping = dict(zip(df['port'], df['Country']))
+    return continent_region_mapping, country_mapping
 
 def convert_date(date_str):
     """Converts date string to the format 'MM/DD/YYYY'."""
@@ -188,22 +191,24 @@ def extract_data_from_results(driver):
     else:
         # If a RegionMapping object exists, use the file from the object
         region_file = region_file.file.path
-    continent_region_mapping = load_continent_region_mapping(region_file)
+    continent_region_mapping, country_mapping = load_continent_region_mapping(region_file)
     for row in rows:
         cols = row.find_all('td')
+
         if cols:
+            cruise_line = cols[5].text.strip().replace("\n", " / ")
             deal = [
                 cols[1].text.strip(),  # Length
                 convert_date(cols[2].text.strip()),  # Month
                 cols[3].text.strip(),  # Port From
                 cols[4].text.strip(),  # Port To
-                get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), continent_region_mapping),  # Region
-                "",  # Country (Placeholder)
-                cols[5].text.strip().replace("\n", " / "),  # Cruise Line
-                "",  # Ship (Placeholder)
-                cols[6].text.strip(),  # Stars
-                cols[7].text.strip(),  # Was
-                cols[8].text.strip(),  # Price
+                get_combined_continent(cols[3].text.strip().lower(), cols[4].text.strip().lower(), continent_region_mapping),  # Region
+                country_mapping.get(cols[4].text.strip().lower(), ''),  #Country (Placeholder)
+                cruise_line,  # Cruise Line
+                cruise_line.split(" / ")[-1].strip(),  # Ship (Placeholder)
+                cols[6].text.strip() if cols[6].text.strip() == "-" else '',  # Stars
+                cols[7].text.strip() if cols[7].text.strip() == "-" else '',  # Was
+                cols[8].text.strip() if cols[8].text.strip() == "-" else '',  # Price
                 cols[9].text.strip(),  # Save
                 cols[0].text.strip(),  # Ref
                 ""  # Notes (Placeholder)
@@ -234,7 +239,7 @@ def generate_excel_file(data, not_found_cruise_lines, file_name="cruise_deals.xl
     # Write to an Excel file in memory with two sheets
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df_data.to_excel(writer, index=False, sheet_name="file_name")
+        df_data.to_excel(writer, index=False, sheet_name="file_name", na_rep="")
         df_not_found.to_excel(writer, index=False, sheet_name="Not Found Cruise Lines")
     
     # Set the pointer to the beginning of the BytesIO object
