@@ -96,7 +96,7 @@ def select_cruise_line(driver, cruise_line):
     select = Select(dropdown)
     found = False  # Flag to track if cruise line is found
     for option in select.options:
-        if cruise_line in option.text:  # Check if the cruise line matches
+        if cruise_line in option.text.lower():  # Check if the cruise line matches
             select.select_by_visible_text(option.text)
             print(f"Selected cruise line: {cruise_line}")
             found = True
@@ -144,11 +144,11 @@ def load_continent_region_mapping(file_path):
     # Read the Excel file using pandas
     df = pd.read_excel(file_path)
     # Ensure the 'port' column values are lowercase
-    df['port'] = df['port'].str.lower()
+    df['Port'] = df['Port'].str.lower()
    
     # Create a dictionary mapping each continent to its corresponding region
-    continent_region_mapping = dict(zip(df['port'], df['Region']))
-    country_mapping = dict(zip(df['port'], df['Country']))
+    continent_region_mapping = dict(zip(df['Port'], df['Region']))
+    country_mapping = dict(zip(df['Port'], df['Country']))
     return continent_region_mapping, country_mapping
 
 def convert_date(date_str):
@@ -251,6 +251,8 @@ def generate_excel_file(data, not_found_cruise_lines, file_name="cruise_deals.xl
 def get_cruise_lines_from_excel(file):
     """Reads cruise lines from an Excel file."""
     df = pd.read_excel(file)
+    # Ensure the 'Cruise Line' column values are lowercase
+    df['Cruise Line'] = df['Cruise Line'].str.lower()
     return df['Cruise Line'].tolist()
 
 # Main Processing Function
