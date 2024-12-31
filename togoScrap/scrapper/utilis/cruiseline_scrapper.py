@@ -197,23 +197,23 @@ def extract_data_from_results(driver):
 
         if cols:
             cruise_line = cols[5].text.strip().replace("\n", " / ")
+            cruise_line = cruise_line.split(" / ")
             deal = [
                 cols[1].text.strip(),  # Length
                 convert_date(cols[2].text.strip()),  # Month
                 cols[3].text.strip(),  # Port From
                 cols[4].text.strip(),  # Port To
-                get_combined_continent(cols[3].text.strip().lower(), cols[4].text.strip().lower(), continent_region_mapping),  # Region
+                # get_combined_continent(cols[3].text.strip().lower(), cols[4].text.strip().lower(), continent_region_mapping),  # Region
+                continent_region_mapping.get(cols[3].text.strip().lower(), None), #Region
                 country_mapping.get(cols[4].text.strip().lower(), ''),  #Country (Placeholder)
-                cruise_line,  # Cruise Line
-                cruise_line.split(" / ")[-1].strip(),  # Ship (Placeholder)
+                cruise_line[0].strip(),  # Cruise Line
+                cruise_line[-1].strip(),  # Ship (Placeholder)
                 cols[6].text.strip() if cols[6].text.strip() != "-" else '',  # Stars
                 cols[7].text.strip() if cols[7].text.strip() != "-" else '',  # Was
                 cols[8].text.strip() if cols[8].text.strip() != "-" else '',  # Price
                 cols[9].text.strip(),  # Save
                 cols[0].text.strip(),  # Ref
                 ""  # Notes (Placeholder)
-                # get_combined_continent(cols[3].text.strip(), cols[4].text.strip(), get_continent)
-                # f"{country_dic.get(cols[3].text.strip(), "Asia")},{country_dic.get(cols[4].text.strip(), "Asia")}"
             ]
             data.append(deal)
 
