@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 
+from datetime import datetime, timedelta
 from io import BytesIO
 from datetime import datetime
 from selenium import webdriver
@@ -93,6 +94,7 @@ def select_cruise_line(driver, cruise_line):
     dropdown = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, "//select[@id='LineID']"))
     )
+    print(cruise_line, "cruise_linecruise_linecruise_line")
     select = Select(dropdown)
     found = False  # Flag to track if cruise line is found
     for option in select.options:
@@ -174,11 +176,71 @@ def convert_date(date_str):
         return date_str
 
 
+def handle_many_departures(driver, results_container):
+    """Handles the scenario when 'Too many departures to display...' is encountered."""
+    from_month = WebDriverWait(results_container, 30).until(
+        EC.presence_of_element_located((By.ID, "SMonth"))
+    )
+    to_month = WebDriverWait(results_container, 30).until(
+        EC.presence_of_element_located((By.ID, "TMonth"))
+    )
+
+    # Get current month and year
+    current_date = datetime.now()
+    current_year = current_date.year
+    current_month = current_date.month
+    current_month_value = f"{current_year}{current_month}"  # Format as 'YYYYM'
+
+    # Calculate +12 months
+    future_date = current_date + timedelta(days=365)  # Add 12 months (approx)
+    future_year = future_date.year
+    future_month = future_date.month
+    future_month_value = f"{future_year}{future_month}"  # Format as 'YYYYM'
+
+    # Print for debugging
+    print(current_month_value, "(((((((())))))))", future_month_value)
+
+    # Select current month in 'from_month' dropdown
+    from_month_select = Select(from_month)
+    from_month_select.select_by_value(current_month_value)
+
+    # Select +12 months in 'to_month' dropdown
+    to_month_select = Select(to_month)
+    to_month_select.select_by_value(future_month_value)
+
+    # Click the "Show Me the Deals" button
+    WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.ID, "fabShowMeTheDeals"))
+    ).click()
+
+    # Wait for the results container to reload
+    results_container = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.XPATH, "//div[@id='bodyContainer']"))
+    )
+    return results_container
+
+
 def extract_data_from_results(driver):
     """Extracts cruise deal data from the results table."""
     results_container = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, "//div[@id='bodyContainer']"))
     )
+    print(results_container, "results_containerresults_containerresults_container")
+
+    many_departures = None
+    try:
+        many_departures = WebDriverWait(results_container, 30).until(
+            EC.presence_of_element_located((By.XPATH, ".//h1[text()='Too many departures to display...']"))
+        )
+    except: 
+        many_departures = None
+        print("except except except except")
+
+    print(many_departures, "many_departuresmany_departuresmany_departures")
+    if many_departures:
+        results_container = handle_many_departures(driver, results_container)
+
+    # Extract the HTML content
     html_content = results_container.get_attribute('outerHTML')
     soup = BeautifulSoup(html_content, 'html.parser')
     rows = soup.select('table.ticker.deals tr')
@@ -191,7 +253,9 @@ def extract_data_from_results(driver):
     else:
         # If a RegionMapping object exists, use the file from the object
         region_file = region_file.file.path
+
     continent_region_mapping, country_mapping = load_continent_region_mapping(region_file)
+
     for row in rows:
         cols = row.find_all('td')
 
@@ -203,9 +267,8 @@ def extract_data_from_results(driver):
                 convert_date(cols[2].text.strip()),  # Month
                 cols[3].text.strip(),  # Port From
                 cols[4].text.strip(),  # Port To
-                # get_combined_continent(cols[3].text.strip().lower(), cols[4].text.strip().lower(), continent_region_mapping),  # Region
-                continent_region_mapping.get(cols[3].text.strip().lower(), None), #Region
-                country_mapping.get(cols[4].text.strip().lower(), ''),  #Country (Placeholder)
+                continent_region_mapping.get(cols[3].text.strip().lower(), None),  # Region
+                country_mapping.get(cols[4].text.strip().lower(), ''),  # Country (Placeholder)
                 cruise_line[0].strip(),  # Cruise Line
                 cruise_line[-1].strip(),  # Ship (Placeholder)
                 cols[6].text.strip() if cols[6].text.strip() != "-" else '',  # Stars
@@ -253,6 +316,7 @@ def get_cruise_lines_from_excel(file):
     df = pd.read_excel(file)
     # Ensure the 'Cruise Line' column values are lowercase
     df['Cruise Line'] = df['Cruise Line'].str.lower()
+    df = df.dropna(subset=['Cruise Line'])  # Remove rows with NaN in 'Cruise Line'
     return df['Cruise Line'].tolist()
 
 # Main Processing Function
@@ -296,7 +360,6 @@ def process_script(driver, cruise_lines, script_type):
             login_if_needed(driver)
             cruise_data = extract_data_from_results(driver)
             data.extend(cruise_data)
-
             if script_type == "script3":
                 WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.XPATH, "//a[text()='Custom Search']"))
@@ -311,10 +374,10 @@ def main(file, script_type="script1", filename="cruiseline"):
 
     # Configure Chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run without GUI
-    chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
-    chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
-    chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
+    # chrome_options.add_argument("--headless")  # Run without GUI
+    # chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
+    # chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
+    # chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
 
     # Initialize WebDriver
     driver = webdriver.Chrome(options=chrome_options)
@@ -325,7 +388,6 @@ def main(file, script_type="script1", filename="cruiseline"):
         login_if_needed(driver)
         cruise_lines = get_cruise_lines_from_excel(file)
         data = process_script(driver, cruise_lines, script_type)
-        
         # Generate Excel file with not-found cruise lines
         return generate_excel_file(data, not_found_cruise_lines, file_name=filename)
     finally:
