@@ -374,10 +374,10 @@ def main(file, script_type="script1", filename="cruiseline"):
 
     # Configure Chrome options
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")  # Run without GUI
-    # chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
-    # chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
-    # chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
+    chrome_options.add_argument("--headless")  # Run without GUI
+    chrome_options.add_argument("--no-sandbox")  # Recommended for Linux servers
+    chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome resource issues
+    chrome_options.add_argument("--disable-gpu")  # Disable GPU (not needed for headless)
 
     # Initialize WebDriver
     driver = webdriver.Chrome(options=chrome_options)
