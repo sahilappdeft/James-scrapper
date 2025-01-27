@@ -198,7 +198,7 @@ def handle_many_departures(driver, results_container):
     future_month_value = f"{future_year}{future_month}"  # Format as 'YYYYM'
 
     # Print for debugging
-    print(current_month_value, "(((((((())))))))", future_month_value)
+    print(current_month_value, "((((())))))))", future_month_value)
 
     # Select current month in 'from_month' dropdown
     from_month_select = Select(from_month)
